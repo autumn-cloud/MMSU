@@ -125,6 +125,14 @@ export const api = {
     );
   },
 
+  async deleteOrder(orderId: number) {
+    await handleResponse(
+      await fetch(`${API_BASE}/orders.php?id=${orderId}`, {
+        method: "DELETE",
+      })
+    );
+  },
+
   async adminLogin(email: string, password: string) {
     return handleResponse<{ id: number; email: string }>(
       await fetch(`${API_BASE}/admin-login.php`, {

@@ -15,6 +15,9 @@ switch ($method) {
     case 'PUT':
         handleUpdateOrderStatus($pdo);
         break;
+    case 'DELETE':
+        handleDeleteOrder($pdo);
+        break;
     default:
         send_json(['error' => 'Method not allowed'], 405);
 }
@@ -135,6 +138,29 @@ function handleUpdateOrderStatus(PDO $pdo): void
     ]);
 
     send_json(['message' => 'Order updated']);
+}
+
+function handleDeleteOrder(PDO $pdo): void
+{
+    parse_str($_SERVER['QUERY_STRING'] ?? '', $params);
+    $id = (int) ($params['id'] ?? 0);
+    if ($id <= 0) {
+        send_json(['error' => 'Order ID is required'], 400);
+    }
+
+    $pdo->beginTransaction();
+    try {
+        // Delete related records first (foreign key constraints)
+        $pdo->prepare('DELETE FROM class_representatives WHERE order_id = :id')->execute([':id' => $id]);
+        $pdo->prepare('DELETE FROM order_items WHERE order_id = :id')->execute([':id' => $id]);
+        $pdo->prepare('DELETE FROM orders WHERE id = :id')->execute([':id' => $id]);
+        
+        $pdo->commit();
+        send_json(['message' => 'Order deleted']);
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        send_json(['error' => 'Failed to delete order', 'details' => $e->getMessage()], 500);
+    }
 }
 
 function hydrateOrder(PDO $pdo, array $row): array

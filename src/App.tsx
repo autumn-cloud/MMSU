@@ -263,6 +263,19 @@ export default function App() {
     }
   };
 
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) {
+      return;
+    }
+    try {
+      await api.deleteOrder(Number(orderId));
+      setOrders(orders.filter((o) => o.id !== orderId));
+      toast.success("Order deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete order");
+    }
+  };
+
   const handleSaveProduct = async (productId: string, updates: Partial<Product>) => {
     try {
       await api.updateProduct(Number(productId), {
@@ -348,6 +361,7 @@ export default function App() {
             adminEmail={adminEmail}
             orders={orders}
             onUpdateOrderStatus={handleUpdateOrderStatus}
+            onDeleteOrder={handleDeleteOrder}
             onLogoutAdmin={handleAdminLogout}
             onNavigateProducts={() => setCurrentView("admin-products")}
           />

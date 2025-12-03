@@ -8,11 +8,12 @@ interface AdminDashboardProps {
   adminEmail: string;
   orders: Order[];
   onUpdateOrderStatus: (orderId: string, status: Order["status"]) => void;
+  onDeleteOrder: (orderId: string) => void;
   onLogoutAdmin: () => void;
   onNavigateProducts?: () => void;
 }
 
-export default function AdminDashboard({ adminEmail, orders, onUpdateOrderStatus, onLogoutAdmin, onNavigateProducts }: AdminDashboardProps) {
+export default function AdminDashboard({ adminEmail, orders, onUpdateOrderStatus, onDeleteOrder, onLogoutAdmin, onNavigateProducts }: AdminDashboardProps) {
   const formatDate = (date: Date | string) => {
     const d = new Date(date);
     return d.toLocaleString();
@@ -38,7 +39,14 @@ export default function AdminDashboard({ adminEmail, orders, onUpdateOrderStatus
         <CardContent className="space-y-4">
           {orders.length === 0 && <p className="m-0 text-muted-foreground">No orders yet.</p>}
           {orders.map((order) => (
-            <div key={order.id} className="bg-white rounded border p-4">
+            <div key={order.id} className="bg-white rounded border p-4 relative">
+              <button
+                onClick={() => onDeleteOrder(order.id)}
+                className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-red-100 text-gray-500 hover:text-red-600 transition-colors"
+                title="Delete order"
+              >
+                <span className="text-lg leading-none">×</span>
+              </button>
               <div className="flex flex-wrap justify-between gap-3">
                 <div>
                   <p className="m-0 font-medium">{order.orderNumber}</p>
